@@ -5,6 +5,10 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 
 const Index = () => {
@@ -13,6 +17,14 @@ const Index = () => {
     brand: '',
     year: [2015, 2024],
     price: [500000, 5000000]
+  });
+
+  const [contactForm, setContactForm] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    message: '',
+    vehicleId: null as number | null
   });
 
   const vehicles = [
@@ -24,7 +36,18 @@ const Index = () => {
       year: 2022,
       price: 2800000,
       image: '/img/3833b581-f4f4-4e93-8053-7cb19433d13b.jpg',
-      specs: { power: '148 л.с.', weight: '20 т', bucket: '1.0 м³' }
+      specs: { power: '148 л.с.', weight: '20 т', bucket: '1.0 м³' },
+      fullSpecs: {
+        engine: 'Komatsu SAA6D107E-1',
+        power: '148 л.с. (110 кВт)',
+        weight: '20 000 кг',
+        bucketCapacity: '1.0 м³',
+        maxDigDepth: '6.69 м',
+        maxReach: '9.77 м',
+        travelSpeed: '5.5 км/ч',
+        fuelTank: '400 л'
+      },
+      description: 'Надежный гусеничный экскаватор японского производства с отличной топливной экономичностью.'
     },
     {
       id: 2,
@@ -34,7 +57,18 @@ const Index = () => {
       year: 2023,
       price: 3200000,
       image: '/img/d3de54b8-6e28-4ac0-a954-e4b87de64a47.jpg',
-      specs: { power: '400 л.с.', load: '44 т', engine: 'Euro 5' }
+      specs: { power: '400 л.с.', load: '44 т', engine: 'Euro 5' },
+      fullSpecs: {
+        engine: 'КАМАЗ-910.10-260',
+        power: '400 л.с. (294 кВт)',
+        torque: '1 960 Н·м',
+        transmission: '16-ступенчатая ZF',
+        maxWeight: '44 000 кг',
+        fuelTank: '500 л',
+        cabType: 'Спальная кабина',
+        euroStandard: 'Euro 5'
+      },
+      description: 'Современный российский тягач с увеличенной грузоподъемностью и комфортной кабиной.'
     },
     {
       id: 3,
@@ -44,7 +78,18 @@ const Index = () => {
       year: 2021,
       price: 2500000,
       image: '/img/67778bdd-27e9-4e38-ad09-5887de4d5db7.jpg',
-      specs: { power: '460 л.с.', load: '26 т', fuel: 'Дизель' }
+      specs: { power: '460 л.с.', load: '26 т', fuel: 'Дизель' },
+      fullSpecs: {
+        engine: 'D2676 LF',
+        power: '460 л.с. (338 кВт)',
+        torque: '2 300 Н·м',
+        transmission: '12-ступенчатая автомат',
+        maxWeight: '26 000 кг',
+        fuelTank: '620 л',
+        euroStandard: 'Euro 6',
+        wheelbase: '3 900 мм'
+      },
+      description: 'Премиальный немецкий грузовик с передовыми технологиями и высокой надежностью.'
     }
   ];
 
@@ -55,6 +100,103 @@ const Index = () => {
     if (vehicle.price < filters.price[0] || vehicle.price > filters.price[1]) return false;
     return true;
   });
+
+  const handleContactSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    alert(`Спасибо, ${contactForm.name}! Мы свяжемся с вами в ближайшее время.`);
+    setContactForm({ name: '', phone: '', email: '', message: '', vehicleId: null });
+  };
+
+  const VehicleDetailDialog = ({ vehicle }: { vehicle: typeof vehicles[0] }) => (
+    <DialogContent className="max-w-4xl bg-gray-900 text-white border-gray-700">
+      <DialogHeader>
+        <DialogTitle className="text-2xl text-neon-cyan">{vehicle.name}</DialogTitle>
+        <DialogDescription className="text-gray-400">{vehicle.description}</DialogDescription>
+      </DialogHeader>
+      
+      <div className="grid md:grid-cols-2 gap-6">
+        <div>
+          <img 
+            src={vehicle.image} 
+            alt={vehicle.name}
+            className="w-full h-64 object-cover rounded-lg"
+          />
+          <div className="mt-4 text-center">
+            <span className="text-3xl font-bold text-neon-pink">
+              {vehicle.price.toLocaleString()} ₽
+            </span>
+          </div>
+        </div>
+        
+        <div>
+          <Tabs defaultValue="specs" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 bg-gray-800">
+              <TabsTrigger value="specs" className="data-[state=active]:bg-neon-cyan data-[state=active]:text-black">
+                Характеристики
+              </TabsTrigger>
+              <TabsTrigger value="contact" className="data-[state=active]:bg-neon-pink data-[state=active]:text-black">
+                Заказать
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="specs" className="mt-4">
+              <div className="space-y-3">
+                {Object.entries(vehicle.fullSpecs).map(([key, value]) => (
+                  <div key={key} className="flex justify-between p-3 bg-gray-800/50 rounded">
+                    <span className="text-gray-400 capitalize">{key}:</span>
+                    <span className="text-white font-medium">{value}</span>
+                  </div>
+                ))}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="contact" className="mt-4">
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                setContactForm({...contactForm, vehicleId: vehicle.id});
+                handleContactSubmit(e);
+              }} className="space-y-4">
+                <div>
+                  <Label htmlFor="name">Имя *</Label>
+                  <Input
+                    id="name"
+                    value={contactForm.name}
+                    onChange={(e) => setContactForm({...contactForm, name: e.target.value})}
+                    className="bg-gray-800 border-gray-600"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="phone">Телефон *</Label>
+                  <Input
+                    id="phone"
+                    value={contactForm.phone}
+                    onChange={(e) => setContactForm({...contactForm, phone: e.target.value})}
+                    className="bg-gray-800 border-gray-600"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={contactForm.email}
+                    onChange={(e) => setContactForm({...contactForm, email: e.target.value})}
+                    className="bg-gray-800 border-gray-600"
+                  />
+                </div>
+                <Button type="submit" className="w-full bg-neon-cyan text-black hover:bg-neon-cyan/90">
+                  <Icon name="Send" className="mr-2" size={16} />
+                  Отправить заявку
+                </Button>
+              </form>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+    </DialogContent>
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-black text-white">
@@ -203,14 +345,19 @@ const Index = () => {
                   ))}
                 </div>
                 
-                <div className="flex justify-between items-center">
-                  <span className="text-2xl font-bold text-neon-pink">
+                <div className="flex justify-between items-center gap-2">
+                  <span className="text-xl font-bold text-neon-pink">
                     {vehicle.price.toLocaleString()} ₽
                   </span>
-                  <Button className="bg-neon-cyan text-black hover:bg-neon-cyan/90">
-                    <Icon name="ShoppingCart" className="mr-2" size={16} />
-                    Купить
-                  </Button>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button className="bg-neon-cyan text-black hover:bg-neon-cyan/90">
+                        <Icon name="Eye" className="mr-2" size={16} />
+                        Подробнее
+                      </Button>
+                    </DialogTrigger>
+                    <VehicleDetailDialog vehicle={vehicle} />
+                  </Dialog>
                 </div>
               </CardContent>
             </Card>
@@ -238,20 +385,118 @@ const Index = () => {
         </div>
       </div>
 
-      {/* CTA Section */}
+      {/* Contact Form Section */}
       <div className="bg-gradient-to-r from-neon-cyan/10 to-neon-pink/10 py-16">
-        <div className="container mx-auto px-6 text-center">
-          <h2 className="text-4xl font-bold mb-4">Готовы купить спецтехнику?</h2>
-          <p className="text-xl text-gray-300 mb-8">Свяжитесь с нами для консультации и получения лучшего предложения</p>
-          <div className="flex gap-4 justify-center">
-            <Button className="bg-neon-pink text-black hover:bg-neon-pink/90 text-lg px-8 py-3">
-              <Icon name="Phone" className="mr-2" />
-              +7 (495) 123-45-67
-            </Button>
-            <Button variant="outline" className="border-neon-cyan text-neon-cyan hover:bg-neon-cyan/10 text-lg px-8 py-3">
-              <Icon name="Mail" className="mr-2" />
-              info@spectech.ru
-            </Button>
+        <div className="container mx-auto px-6">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold mb-4">Связаться с нами</h2>
+              <p className="text-xl text-gray-300">Оставьте заявку и мы поможем подобрать технику под ваши задачи</p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-12">
+              <div>
+                <h3 className="text-2xl font-bold mb-6 text-neon-cyan">Обратная связь</h3>
+                <form onSubmit={handleContactSubmit} className="space-y-6">
+                  <div>
+                    <Label htmlFor="contact-name" className="text-white">Имя *</Label>
+                    <Input
+                      id="contact-name"
+                      value={contactForm.name}
+                      onChange={(e) => setContactForm({...contactForm, name: e.target.value})}
+                      className="bg-gray-800 border-gray-600 text-white mt-2"
+                      placeholder="Введите ваше имя"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="contact-phone" className="text-white">Телефон *</Label>
+                    <Input
+                      id="contact-phone"
+                      value={contactForm.phone}
+                      onChange={(e) => setContactForm({...contactForm, phone: e.target.value})}
+                      className="bg-gray-800 border-gray-600 text-white mt-2"
+                      placeholder="+7 (xxx) xxx-xx-xx"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="contact-email" className="text-white">Email</Label>
+                    <Input
+                      id="contact-email"
+                      type="email"
+                      value={contactForm.email}
+                      onChange={(e) => setContactForm({...contactForm, email: e.target.value})}
+                      className="bg-gray-800 border-gray-600 text-white mt-2"
+                      placeholder="your@email.com"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="contact-message" className="text-white">Сообщение</Label>
+                    <Textarea
+                      id="contact-message"
+                      value={contactForm.message}
+                      onChange={(e) => setContactForm({...contactForm, message: e.target.value})}
+                      className="bg-gray-800 border-gray-600 text-white mt-2 min-h-[120px]"
+                      placeholder="Расскажите о ваших потребностях в технике..."
+                    />
+                  </div>
+                  
+                  <Button type="submit" className="w-full bg-neon-pink text-black hover:bg-neon-pink/90 text-lg py-3">
+                    <Icon name="Send" className="mr-2" />
+                    Отправить заявку
+                  </Button>
+                </form>
+              </div>
+              
+              <div>
+                <h3 className="text-2xl font-bold mb-6 text-neon-pink">Контактная информация</h3>
+                <div className="space-y-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-neon-cyan/20 rounded-full flex items-center justify-center">
+                      <Icon name="Phone" className="text-neon-cyan" size={24} />
+                    </div>
+                    <div>
+                      <h4 className="font-bold">Телефон</h4>
+                      <p className="text-gray-300">+7 (495) 123-45-67</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-neon-pink/20 rounded-full flex items-center justify-center">
+                      <Icon name="Mail" className="text-neon-pink" size={24} />
+                    </div>
+                    <div>
+                      <h4 className="font-bold">Email</h4>
+                      <p className="text-gray-300">info@spectech.ru</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-electric-blue/20 rounded-full flex items-center justify-center">
+                      <Icon name="MapPin" className="text-electric-blue" size={24} />
+                    </div>
+                    <div>
+                      <h4 className="font-bold">Адрес</h4>
+                      <p className="text-gray-300">г. Москва, ул. Промышленная, д. 15</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-neon-cyan/20 rounded-full flex items-center justify-center">
+                      <Icon name="Clock" className="text-neon-cyan" size={24} />
+                    </div>
+                    <div>
+                      <h4 className="font-bold">Время работы</h4>
+                      <p className="text-gray-300">Пн-Пт: 9:00-18:00<br />Сб: 10:00-16:00</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
